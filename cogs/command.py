@@ -20,7 +20,9 @@ class MyBot(commands.Cog):
     s = f.create_subgroup(name="search")
 
 
-    
+    @commands.command(name="source")
+    async def source(self, inter:discord.Interaction):
+        await inter.respond("https://github.com/wuliao97/Funshi")
     
 
     @f.command(name="format")

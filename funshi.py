@@ -1,16 +1,13 @@
-from discord.interactions import Interaction
 from util import *
 from config import *
-
 
 import discord
 from discord.ui import *
 from discord.commands import Option
 from discord.ext import commands
 
-import os, json, datetime
-import pandas as pd
-
+import json
+import datetime
 
 class Funshi:
     """
@@ -18,15 +15,6 @@ class Funshi:
     
     
     """
-    _base =  {
-            "name" : "",
-            "discriminator": "",
-            "id"   : "",
-            "about": "",
-            "date" : ""
-        }
-
-
     def _embed(title=None, description=None, color=None):
         e = discord.Embed()
 
@@ -38,8 +26,6 @@ class Funshi:
         
         if color:
             e.color = discord.Color.red()
-
-
 
         return e
 
