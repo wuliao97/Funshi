@@ -203,7 +203,7 @@ class FunshiEditSelect(discord.ui.Select):
         super().__init__(placeholder=placeholder, options=options)
         self.ephemeral = ephemeral
     
-    async def callback(self, inter: Interaction):
+    async def callback(self, inter: discord.Interaction):
         
         data = Funshi.loading()
         e = Funshi.details_base(data[self.values[0]], inter.user)

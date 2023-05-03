@@ -11,6 +11,7 @@ sub   = config["sub_token"]
 verified_roles = config["verify_roles"]
 verified_servers = config["verify_servers"]
 
+
 """File PATHs"""
 ROOT = os.curdir
 

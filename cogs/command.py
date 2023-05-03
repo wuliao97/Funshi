@@ -18,12 +18,22 @@ class MyBot(commands.Cog):
     f = discord.SlashCommandGroup(name="funshi")
     l = f.create_subgroup(name="list")
     s = f.create_subgroup(name="search")
+    b = f.create_subgroup(name="backup")
 
 
-    @commands.command(name="source")
+
+    @f.command(name="source")
     async def source(self, inter:discord.Interaction):
         await inter.respond("https://github.com/wuliao97/Funshi")
     
+
+
+    @b.command(name="send-a-json")
+    async def backup_send_a_json(self, inter:discord.Interaction):
+        file = discord.File(BACKUP_JSON, filename=f"backup_{datetime.datetime.now().strftime(TimeFormat.DEFAULT)}.json")
+        await inter.response.send_message(file=file)
+
+
 
     @f.command(name="format")
     #@commands.check_any()
