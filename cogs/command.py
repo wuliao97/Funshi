@@ -7,7 +7,17 @@ from discord.ui import *
 from discord.commands import Option
 from discord.ext import commands
 
-import os, json, datetime
+
+import io
+import json 
+import math
+import textwrap
+import datetime
+import requests
+
+from pathlib import Path
+from pilmoji import Pilmoji
+from PIL import Image, ImageDraw, ImageFont
 
 
 
@@ -20,11 +30,113 @@ class MyBot(commands.Cog):
     s = f.create_subgroup(name="search")
     b = f.create_subgroup(name="backup")
 
+    def convert_size(self, size, units = "B"):
+        units = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB")
+        i = math.floor(math.log(size, 1024)) if size > 0 else 0
+        size = round(size / 1024 ** i, 2)
+        
+        return f"{size} {units[i]}"
+
+
+    @commands.message_command(name="Make it a Quote(Fake)")
+    async def make_it_a_quote(self, inter:discord.Interaction, message:discord.Message):
+        W, H = 1200, 630
+        
+        def make_it_a_quote_base(url:str, msg, mode="L"):
+            icon_img = Image.open(io.BytesIO(requests.get(url).content)).convert(mode=mode)
+            background_img = Image.open(f"resouse{os.sep}image{os.sep}background.png")
+            mask_img = Image.open(f"resouse{os.sep}image{os.sep}base-gd-3.png")
+            black = Image.open(f"resouse{os.sep}image{os.sep}background.png")
+            icon = icon_img.resize((H, H))
+            background_img.paste(icon)
+            result = Image.composite(black, background_img, mask=mask_img)
+            draw = ImageDraw.Draw(result)
+
+            tsize_t = draw_text(result, (850, 270), msg.content, size=45, color=(255,255,255,255), split_len=14, auto_expand=True) 
+            user_name:str =  f"{msg.author.display_name} ({msg.author.name})#{msg.author.discriminator}" if not msg.author.display_name==msg.author.name else f"{msg.author.name}#{msg.author.discriminator}"
+
+            draw_text(result, (850, tsize_t[2] + 40), str(f"- {user_name}"), size=25, color=(255,255,255,255), split_len=25, disable_dot_wrap=True)
+            
+            frame = f"resouse{os.sep}image{os.sep}done{os.sep}result.png"
+            print(os.path.exists(frame))
+            result.save(frame)
+            
+            return  frame, (result.size)
+        
+        def draw_text(im, ofs, string, font=f'resouse{os.sep}fonts{os.sep}MPLUSRounded1c-Regular.ttf', size=16, color=(0,0,0,255), split_len=None, padding=4, auto_expand=False, emojis: list = [], disable_dot_wrap=False):
+            draw = ImageDraw.Draw(im)
+            fontObj = ImageFont.truetype(font, size=size)
+
+            pure_lines, pos, l = [], 0, ""
+
+            if not disable_dot_wrap:
+                for char in str(string):
+                    if char == '\n':
+                        pure_lines.append(l)
+                        l = ''
+                        pos += 1
+                    elif char == '、' or char == ',':
+                        pure_lines.append(l + ('、' if char == '、' else ','))
+                        l = ''
+                        pos += 1
+                    elif char == '。' or char == '.':
+                        pure_lines.append(l + ('。' if char == '。' else '.'))
+                        l = ''
+                        pos += 1
+                    else:
+                        l += char
+                        pos += 1
+
+                if l:
+                    pure_lines.append(l)
+            else:
+                pure_lines = string.split('\n')
+
+            lines = []
+
+            for line in pure_lines:
+                lines.extend(textwrap.wrap(line, width=split_len))
+            
+            dy = 0
+            draw_lines = []
+
+            for line in lines:
+                tsize = fontObj.getsize(line)
+                ofs_y = ofs[1] + dy
+                t_height = tsize[1]
+
+                x = int(ofs[0] - (tsize[0]/2))
+                draw_lines.append((x, ofs_y, line))
+                ofs_y += t_height + padding
+                dy += t_height + padding
+            
+            adj_y = -30 * (len(draw_lines)-1)
+            for dl in draw_lines:
+                with Pilmoji(im) as p:
+                    p.text((dl[0], (adj_y + dl[1])), dl[2], font=fontObj, fill=color, emojis=emojis, emoji_position_offset=(-4, 4))
+
+            real_y = ofs[1] + adj_y + dy
+            return (0, dy, real_y)
+
+
+        msg = await inter.channel.fetch_message(message.id)
+        url = message.author.display_avatar.url
+        
+        file_name, b = make_it_a_quote_base(url=url, msg=msg, mode="L")
+        b = iter(b)
+
+        e = discord.Embed(color=0x2f3136)
+        e.set_image(url=f"attachment://{file_name}")
+        e.set_footer(text=f"{next(b)}x{next(b)}, {self.convert_size(os.stat(file_name).st_size)}")
+        file = file=discord.File(file_name)
+        
+        await inter.response.send_message(embed=e, file=file)
+
 
 
     @f.command(name="source")
     async def source(self, inter:discord.Interaction):
-        await inter.respond("https://github.com/wuliao97/Funshi")
+        await inter.response.send_message("https://github.com/wuliao97/Funshi", ephemeral=True)
     
 
 

@@ -14,12 +14,12 @@ bot = commands.Bot(
 )
 
 
-"""
+
 @bot.event
 async def on_application_command_error(ctx: discord.ApplicationContext, error: discord.DiscordException):
     e = discord.Embed(description=error, color=discord.Color.red())
     await ctx.respond(embeds=[e], ephemeral=True)
-"""
+
 
 
 def main():

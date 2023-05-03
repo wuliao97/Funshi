@@ -3,8 +3,6 @@ from config import *
 
 import discord
 from discord.ui import *
-from discord.commands import Option
-from discord.ext import commands
 
 import json
 import datetime
