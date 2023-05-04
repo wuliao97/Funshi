@@ -13,7 +13,7 @@ class Funshi:
     
     
     """
-    def _embed(title=None, description=None, color=None):
+    def _embed(title=None, description=None, color=False):
         e = discord.Embed()
 
         if title:
@@ -108,13 +108,14 @@ class Funshi:
         return m
 
 
-    def check_in_data(user:discord.Member, exist_OK=True):
+    def check_in_data(user:discord.Member | int , exist_OK=False):
         result = True
         text   = ""
         material = Funshi.loading()
-            
-        if exist_OK:
-            if str(user.id) in material:
+        user_ID = user.id if isinstance(user, discord.Member) else user
+        
+        if exist_OK is False:
+            if str(user_ID) in material:
                 result = False
                 text   = "This user is ALready Registed! Please use `/funshi edit` command If you want to edit"
 
@@ -125,7 +126,7 @@ class Funshi:
             return result, text
 
         else:
-            if str(user.id) not in material:
+            if str(user_ID) not in material:
                 result = False
                 text   = "No existing in member list" 
 

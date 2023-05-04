@@ -7,7 +7,6 @@ from discord.ui import *
 from discord.commands import Option
 from discord.ext import commands
 
-
 import io
 import json 
 import math
@@ -15,7 +14,6 @@ import textwrap
 import datetime
 import requests
 
-from pathlib import Path
 from pilmoji import Pilmoji
 from PIL import Image, ImageDraw, ImageFont
 
@@ -30,12 +28,7 @@ class MyBot(commands.Cog):
     s = f.create_subgroup(name="search")
     b = f.create_subgroup(name="backup")
 
-    def convert_size(self, size, units = "B"):
-        units = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB")
-        i = math.floor(math.log(size, 1024)) if size > 0 else 0
-        size = round(size / 1024 ** i, 2)
-        
-        return f"{size} {units[i]}"
+
 
 
     @commands.message_command(name="Make it a Quote(Fake)")
@@ -127,7 +120,7 @@ class MyBot(commands.Cog):
 
         e = discord.Embed(color=0x2f3136)
         e.set_image(url=f"attachment://{file_name}")
-        e.set_footer(text=f"{next(b)}x{next(b)}, {self.convert_size(os.stat(file_name).st_size)}")
+        e.set_footer(text=f"{next(b)}x{next(b)}, {convert_size(os.stat(file_name).st_size)}")
         file = file=discord.File(file_name)
         
         await inter.response.send_message(embed=e, file=file)
@@ -180,7 +173,7 @@ class MyBot(commands.Cog):
 
     @commands.user_command(name="funshi list add")
     async def funshi_add_withUserCMD(self, inter:discord.Interaction, user:discord.Member):
-        result, err = Funshi.check_in_data(user=user, exist_OK=True)
+        result, err = Funshi.check_in_data(user=user)
 
         if result:
             data = Funshi.loading()
@@ -208,7 +201,7 @@ class MyBot(commands.Cog):
             str, "憤死内容", max_length=1_000
         )
     ):
-        result, err = Funshi.check_in_data(user=user, exist_OK=True)
+        result, err = Funshi.check_in_data(user=user)
 
         if result:
             data = Funshi.loading()
@@ -253,9 +246,7 @@ class MyBot(commands.Cog):
         )
 
 
-
-
-    @s.command(name="person")
+    @s.command(name="select")
     async def funshi_search_cmd(
         self, 
         inter:discord.Interaction,
@@ -273,6 +264,56 @@ class MyBot(commands.Cog):
             ephemeral = me_only
         )
 
+
+    @s.command(name="by-id")
+    async def funshi_search_cmd(
+        self, 
+        inter:discord.Interaction,
+        user:Option(str, "ONLY user `ID`. Like: 1039780426564239431"),
+        me_only:Option(
+            bool, "Display to just me?", choices=[True, False], default=False
+        )
+    ):
+        result, err = Funshi.check_in_data(user=user, exist_OK=True)
+
+        if result:
+            data = Funshi.loading()[user]
+            e = Funshi.details_base(data=data, user=inter.user)
+
+            await inter.response.send_message(
+                embeds    = [e], 
+                ephemeral = me_only
+            )            
+            
+        else:
+            e = discord.Embed(description=err)
+            await inter.response.send_message(embeds=[e], ephemeral=True)
+
+
+
+    @s.command(name="simple")
+    async def funshi_search_cmd(
+        self, 
+        inter:discord.Interaction,
+        user:Option(discord.Member, ""),
+        me_only:Option(
+            bool, "Display to just me?", choices=[True, False], default=False
+        )
+    ):
+        result, err = Funshi.check_in_data(user=user, exist_OK=True)
+
+        if result:
+            data = Funshi.loading()[str(user.id)]
+            e = Funshi.details_base(data=data, user=inter.user)
+
+            await inter.response.send_message(
+                embeds    = [e], 
+                ephemeral = me_only
+            )            
+            
+        else:
+            e = discord.Embed(description=err)
+            await inter.response.send_message(embeds=[e], ephemeral=True)
 
 
 
