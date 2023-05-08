@@ -19,6 +19,16 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 
+def is_dev():
+    def check_developer(inter:discord.Interaction | discord.ApplicationContext):
+        result = int(inter.author.id) in admins
+        if result:
+            pass
+        return result
+    return commands.check(check_developer)
+
+
+
 class MyBot(commands.Cog):
     def __init__(self, bot:discord.Bot):
         self.bot = bot
@@ -79,7 +89,6 @@ class MyBot(commands.Cog):
                     else:
                         l += char
                         pos += 1
-
                 if l:
                     pure_lines.append(l)
             else:
@@ -134,6 +143,7 @@ class MyBot(commands.Cog):
 
 
     @b.command(name="send-a-json")
+    @commands.check_any(commands.has_any_role(verified_roles), is_dev())
     async def backup_send_a_json(self, inter:discord.Interaction):
         file = discord.File(BACKUP_JSON, filename=f"backup_{datetime.datetime.now().strftime(TimeFormat.DEFAULT)}.json")
         await inter.response.send_message(file=file)
@@ -141,7 +151,7 @@ class MyBot(commands.Cog):
 
 
     @f.command(name="format")
-    #@commands.check_any()
+    @commands.check_any(is_dev())
     async def funshi_format(
         self, inter:discord.Interaction, 
     ):
@@ -172,6 +182,7 @@ class MyBot(commands.Cog):
 
 
     @commands.user_command(name="funshi list add")
+    @commands.check_any(commands.has_any_role(verified_roles), is_dev())
     async def funshi_add_withUserCMD(self, inter:discord.Interaction, user:discord.Member):
         result, err = Funshi.check_in_data(user=user)
 
@@ -193,6 +204,7 @@ class MyBot(commands.Cog):
 
 
     @l.command(name="add")
+    @commands.check_any(commands.has_any_role(verified_roles), is_dev())
     async def funshi_add(
         self, 
         inter:discord.Interaction, 
@@ -223,6 +235,7 @@ class MyBot(commands.Cog):
 
 
     @l.command(name="remove")
+    @commands.check_any(commands.has_any_role(verified_roles), is_dev())
     async def funshi_remove(self, inter:discord.Interaction):
         data = Funshi.select_data()
         e = discord.Embed(description="Total: " + str(len(data)))
@@ -235,6 +248,7 @@ class MyBot(commands.Cog):
     
     
     @l.command(name="edit")
+    @commands.check_any(commands.has_any_role(verified_roles), is_dev())
     async def funshi_remove(self, inter:discord.Interaction):
         data = Funshi.select_data()
         e = discord.Embed(description="Total: " + str(len(data)))

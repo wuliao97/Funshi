@@ -1,7 +1,9 @@
 import json, os
 
+
 with open(f"config{os.sep}config.json") as f:
     config = json.load(f)
+
 
 
 """Bot"""
@@ -11,6 +13,7 @@ sub   = config["sub_token"]
 verified_roles = config["verify_roles"]
 verified_servers = config["verify_servers"]
 
+admins = config["admins"]
 
 """File PATHs"""
 ROOT = os.curdir
@@ -21,6 +24,12 @@ FUNSHI_JSON = FUNSHI + "json" + os.sep + "funshi.json"
 BACKUP = FUNSHI + os.sep + "backup" + os.sep
 BACKUP_JSON = BACKUP + "backup.json"
 
+RESOURCE = ROOT + os.sep + "resource" + os.sep
+
+CHSORT = RESOURCE + "channelsort" + os.sep
+
+
+#print(os.path.exists(CHSORT))
 
 
 cog_files = [

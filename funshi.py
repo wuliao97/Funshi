@@ -139,14 +139,11 @@ class Funshi:
 
         for idx, user in enumerate(funshi_data.values()):
             label = f"{idx + 1}: {user['name']}#{user['discriminator']}"
-            
-            abt = c if len(c := user['about']) < 100 else c[:90]
-            
             data.append(discord.SelectOption(
                 label       = label,
                 value       = f"{user['id']}",
-                description = f"{abt}")
-            )
+                description = f"{user['id']}"
+            ))
         return data
 
 
